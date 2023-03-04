@@ -3,30 +3,30 @@ package com.example.demo_inseparable.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.demo_inseparable.api.BaiduApi;
-import com.example.demo_inseparable.pojo.BaiduApiPojo;
+import com.example.demo_inseparable.mapper.TablePhotoMapper;
 import com.example.demo_inseparable.pojo.ResultBean;
 import com.example.demo_inseparable.pojo.TablePhoto;
 import com.example.demo_inseparable.service.TablePhotoService;
-import com.example.demo_inseparable.mapper.TablePhotoMapper;
 import com.example.demo_inseparable.utils.JsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * 图片处理接口实现类
@@ -37,12 +37,15 @@ import java.util.UUID;
 public class TablePhotoServiceImpl extends ServiceImpl<TablePhotoMapper, TablePhoto> implements TablePhotoService {
     @Autowired
     TablePhotoMapper photoMapper;
-    @Value("D:\\img\\")
+    @Value("D:\\WorkSpace\\demo_inseparable\\demo_inseparable\\src\\main\\resources\\imgs\\")
     private String path;
     //定义拼接之后的的关键字
     String keywords = "";
-    Integer id ;
+    Integer id;
     String photoUrl;
+    FileInputStream inputStream;
+    ServletOutputStream outputStream;
+
     /**
      * 将图片路径以及调用百度接口返回的关键字保存到数据库
      *
@@ -51,8 +54,8 @@ public class TablePhotoServiceImpl extends ServiceImpl<TablePhotoMapper, TablePh
      */
     @Override
     public String savePhoto(MultipartFile file, HttpServletRequest request) throws IOException {
-        //此处获取的是上传文件的原始名字，但是为了防止原始的名字有重复，覆盖掉了
-        //原来上传的图片，所以这个时候我们使用UUID的方式上传，防止重复
+       /* 此处获取的是上传文件的原始名字，但是为了防止原始的名字有重复，覆盖掉了
+        原来上传的图片，所以这个时候我们使用UUID的方式上传，防止重复*/
         String originalFilename = file.getOriginalFilename();
         int i = originalFilename.lastIndexOf(".");
         String substring = originalFilename.substring(i);
@@ -77,26 +80,25 @@ public class TablePhotoServiceImpl extends ServiceImpl<TablePhotoMapper, TablePh
                 String s1 = JsonUtils.objectToJson(pc);//遍历JSON数组，使用工具类将每个JSON对象转换成标准的字符串JSON
                 ResultBean pos = JsonUtils.jsonToPojo(s1, ResultBean.class);//使用工具类将JSON字符串转换成POJO实体类（注意，这里要传入实体类.class）
 
-                    //拼接所有的关键词
-                    keywords += pos.getKeyword();
+                //拼接所有的关键词,存入数据库，之后用模糊查询
+                keywords += pos.getKeyword();
 
             }
-            HttpSession session = request.getSession();
+
 
             TablePhoto tablePhoto = new TablePhoto();
             tablePhoto.setPhotoUrl(path + fileName);
             //to do 调用百度接口，返回关键字
             tablePhoto.setKeyWord(keywords);
             id = photoMapper.insert(tablePhoto);
-            session.setAttribute("resUrl", path + fileName + "上传成功photoId-->"+id);
-        } catch(IOException e){
-        e.printStackTrace();
+            //session.setAttribute("resUrl", path + fileName + "上传成功photoId-->"+id);
+            request.setAttribute("resUrl", "上传成功,本地路径： " + path + fileName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //到templates/index.html页面
+        return "index";
     }
-        //返回photo.html
-        return "photo";
-}
-
-
 
 
     /**
@@ -106,43 +108,24 @@ public class TablePhotoServiceImpl extends ServiceImpl<TablePhotoMapper, TablePh
      * @return 返回图片的本地路径
      */
     @Override
-    public String getPhoto(String keyword, HttpServletResponse response) {
-
-        try {
-            // 查询条件构造器
-            QueryWrapper<TablePhoto> wrapper = new QueryWrapper<>();
-            wrapper.like("key_word", keyword);
-
-        /*//添加排序条件
-        LambdaQueryWrapper<TablePhoto> lambdaQueryWrapper1 = lambdaQueryWrapper.orderByAsc(TablePhoto::getCreateTime);
-        List<TablePhoto> list = photoMapper.selectList(lambdaQueryWrapper);
-        for (TablePhoto photo : list) {
-
-        }*/
-            // 查询操作
-            TablePhoto photo = photoMapper.selectOne(wrapper);
-            photoUrl = photo.getPhotoUrl();
-            //创建一个输入流
-            FileInputStream inputStream = new FileInputStream(new File( photoUrl));
-            //创建一个输出流
-            ServletOutputStream outputStream = response.getOutputStream();
-            //规定输出的类型
-            response.setContentType("image/jpeg");
-            //创建一个byte数组
-            byte[] bytes = new byte[1024];
-            //创建一个长度变量
-            int len = 0;
-            //循环写出到浏览器当中
-            while ((len = inputStream.read(bytes)) != -1) {
-                outputStream.write(bytes, 0, len);
-            }
-            //关闭流
-            outputStream.close();
-            inputStream.close();
-        } catch (Exception e) {
-            e.printStackTrace();
+    public List<String> getPhoto(String keyword) {
+        // 查询条件构造器
+        QueryWrapper<TablePhoto> wrapper = new QueryWrapper<>();
+        wrapper.like("key_word", keyword);
+        // 当前的list是获取当前所有满足关键字的图片的集合
+        List<TablePhoto> tablePhotos = photoMapper.selectList(wrapper);
+        //pathList是所有图片的绝对路径的list集合
+        List<String> pathList = tablePhotos.stream()
+                .map(TablePhoto -> TablePhoto.getPhotoUrl())
+                .collect(Collectors.toList());
+        //准备一个存放相对路径的集合
+        List<String> relativePaths = new ArrayList<>();
+        for (String absolutePath : pathList) {
+            String relativePath = absolutePath.replace("D:\\WorkSpace\\demo_inseparable\\demo_inseparable\\src\\main\\resources\\imgs\\", "imgs/");
+            relativePaths.add(relativePath);
         }
-        return photoUrl;
+        return relativePaths;
+
     }
 }
 

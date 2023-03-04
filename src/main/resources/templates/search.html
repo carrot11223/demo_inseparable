@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" >
+<head>
+  <meta charset="utf-8">
+  <title>Search Images</title>
+</head>
+<body>
+<h1>Search Images</h1>
+<form method="get" action="/common/download">
+  <input type="text" name="keyword">
+  <input type="submit" value="提交关键字">
+</form>
+<br/>
+<ul>
+  <li th:each="path : ${images}">
+    <img th:src="@{${path}}"/>
+  </li>
+</ul>
+
+<hr>
+<p>为啥啥也没有</p>
+<img th:src="@{..//imgs//6c85728a-51d2-4aeb-9daf-d3713b1281df.jpg}">
+<html>
+
+</html>
+</body>
+</html>
