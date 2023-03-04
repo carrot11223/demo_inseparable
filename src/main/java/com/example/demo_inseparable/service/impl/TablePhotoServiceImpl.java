@@ -50,7 +50,7 @@ public class TablePhotoServiceImpl extends ServiceImpl<TablePhotoMapper, TablePh
      * @return 存放成功，将数据库中图片的id返回
      */
     @Override
-    public Integer savePhoto(MultipartFile file, HttpServletRequest request) throws IOException {
+    public String savePhoto(MultipartFile file, HttpServletRequest request) throws IOException {
         //此处获取的是上传文件的原始名字，但是为了防止原始的名字有重复，覆盖掉了
         //原来上传的图片，所以这个时候我们使用UUID的方式上传，防止重复
         String originalFilename = file.getOriginalFilename();
@@ -69,31 +69,31 @@ public class TablePhotoServiceImpl extends ServiceImpl<TablePhotoMapper, TablePh
             file.transferTo(new File(path + fileName));
             String str = BaiduApi.advancedGeneral(path + fileName);
             JSONObject json = JSON.parseObject(str);    //先将传入的字符串转换成JSONObject
-            JSONArray arr = (JSONArray) json.get("positionConstruct");  //然后将3个JSON对象组成一个JSON数组
+            JSONArray arr = (JSONArray) json.get("result");  //然后将3个JSON对象组成一个JSON数组
 
             //JSONObject jo = new JSONObject(new String(str));
 
             for (Object pc : arr) {
                 String s1 = JsonUtils.objectToJson(pc);//遍历JSON数组，使用工具类将每个JSON对象转换成标准的字符串JSON
-                BaiduApiPojo pos = JsonUtils.jsonToPojo(s, BaiduApiPojo.class);    //使用工具类将JSON字符串转换成POJO实体类（注意，这里要传入实体类.class）
-                List<ResultBean> result = pos.getResult();
-                for (ResultBean resultBean : result) {
+                ResultBean pos = JsonUtils.jsonToPojo(s1, ResultBean.class);//使用工具类将JSON字符串转换成POJO实体类（注意，这里要传入实体类.class）
+
                     //拼接所有的关键词
-                    keywords += resultBean.getKeyword();
-                }
+                    keywords += pos.getKeyword();
+
             }
             HttpSession session = request.getSession();
-            session.setAttribute("resUrl", path + fileName);
+
             TablePhoto tablePhoto = new TablePhoto();
             tablePhoto.setPhotoUrl(path + fileName);
             //to do 调用百度接口，返回关键字
             tablePhoto.setKeyWord(keywords);
             id = photoMapper.insert(tablePhoto);
+            session.setAttribute("resUrl", path + fileName + "上传成功photoId-->"+id);
         } catch(IOException e){
         e.printStackTrace();
     }
-        //返回插入对象的id
-        return id;
+        //返回photo.html
+        return "photo";
 }
 
 
@@ -111,7 +111,7 @@ public class TablePhotoServiceImpl extends ServiceImpl<TablePhotoMapper, TablePh
         try {
             // 查询条件构造器
             QueryWrapper<TablePhoto> wrapper = new QueryWrapper<>();
-            wrapper.like("key_word", id);
+            wrapper.like("key_word", keyword);
 
         /*//添加排序条件
         LambdaQueryWrapper<TablePhoto> lambdaQueryWrapper1 = lambdaQueryWrapper.orderByAsc(TablePhoto::getCreateTime);

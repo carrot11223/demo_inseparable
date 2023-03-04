@@ -6,8 +6,12 @@
 </head>
 <body>
 <p>已上传图片的路径</p>
-<p th:text="${session.res}">这里显示会话域数据</p>
+<p th:text="${session.resUrl}">这里显示会话域数据</p>
 <hr>
 
+<form method="get" action="/common/download">
+    <input type="text" name="keyword">
+    <input type="submit" value="提交关键字">
+</form>
 </body>
 </html>
