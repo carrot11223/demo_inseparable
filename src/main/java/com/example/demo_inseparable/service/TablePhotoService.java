@@ -20,15 +20,15 @@ public interface TablePhotoService extends IService<TablePhoto> {
      * 根据关键字获取图片
      *
      * @param keyword 搜索的关键字
-     * @return
+     * @return 返回所有符合关键字的图片集合
      */
     List<String> getPhoto(String keyword);
 
     /**
      * 保存图片
      *
-     * @param images
-     * @param request
+     * @param images 上传图片
+     * @param request 请求域
      */
     String savePhoto(List<MultipartFile> images, HttpServletRequest request) throws IOException;
 }

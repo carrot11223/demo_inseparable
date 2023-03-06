@@ -51,14 +51,12 @@ public class PhotoController {
      * 实现文件下载
      *
      * @param keyword 输入的关键字
-     * @param model
+     * @param model 请求域
      */
     @GetMapping("/download")
     public String download(@RequestParam("keyword") String keyword, ModelMap model) {
       //返回所有图片的相对路径
       List<String> photos = tablePhotoService.getPhoto(keyword);
-
-
       model.addAttribute("images", photos);
       return "search";
     }

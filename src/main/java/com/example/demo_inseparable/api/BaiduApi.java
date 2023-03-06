@@ -8,11 +8,11 @@ import java.net.URLEncoder;
 
 import static com.example.demo_inseparable.constant.ImgConstant.TOKEN;
 import static com.example.demo_inseparable.constant.ImgConstant.URL;
+/**
+ * 通用物体和场景识别
+ */
 
 public class BaiduApi {
-    /**
-     * 通用物体和场景识别
-     */
 
     public static String advancedGeneral(String imgUrl) {
         try {
