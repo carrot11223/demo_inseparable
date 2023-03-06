@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 public class TablePhotoServiceImpl extends ServiceImpl<TablePhotoMapper, TablePhoto> implements TablePhotoService {
     @Autowired
     TablePhotoMapper photoMapper;
-    @Value("D:\\WorkSpace\\demo_inseparable\\demo_inseparable\\src\\main\\resources\\imgs\\")
+    @Value("D:\\WorkSpace\\demo_inseparable\\demo_inseparable\\src\\main\\resources\\static\\imgs\\")
     private String path;
     //定义拼接之后的的关键字
     String keywords = "";
@@ -123,7 +123,7 @@ public class TablePhotoServiceImpl extends ServiceImpl<TablePhotoMapper, TablePh
         //准备一个存放相对路径的集合
         List<String> relativePaths = new ArrayList<>();
         for (String absolutePath : pathList) {
-            String relativePath = absolutePath.replace("D:\\WorkSpace\\demo_inseparable\\demo_inseparable\\src\\main\\resources\\imgs\\", "imgs/");
+            String relativePath = absolutePath.replace("D:\\WorkSpace\\demo_inseparable\\demo_inseparable\\src\\main\\resources\\static\\imgs\\", "/imgs/");
             relativePaths.add(relativePath);
         }
         return relativePaths;

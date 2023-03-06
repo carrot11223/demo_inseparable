@@ -3,8 +3,19 @@
 <head>
   <meta charset="utf-8">
   <title>Search Images</title>
+  <style>
+    img {
+      width: 200px;
+      height: 200px;
+    }
+  </style>
 </head>
 <body>
+<form method="post" action="/common/upload" enctype="multipart/form-data">
+  <input type="file" name="file"><br>
+  <input type="submit" value="提交">
+</form>
+<hr>
 <h1>Search Images</h1>
 <form method="get" action="/common/download">
   <input type="text" name="keyword">
@@ -19,15 +30,6 @@
 </ul>
 
 <hr>
-<p>为啥啥也没有</p>
-<img th:src="@{/imgs/fa0a8572-ab6d-4d91-a5dc-48d306b69212.jpg}" />
 
-<img th:src="@{classpath:imgs/fa0a8572-ab6d-4d91-a5dc-48d306b69212.jpg}">
-
-<img th:src="@{src/main/resources/static/imgs/fa0a8572-ab6d-4d91-a5dc-48d306b69212.jpg}" />
-
-<html>
-
-</html>
 </body>
 </html>
