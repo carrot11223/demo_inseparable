@@ -7,12 +7,11 @@
 <body>
 
 <form method="post" action="/common/upload" enctype="multipart/form-data">
-  <input type="file" name="file"><br>
+  <input type="file"  name="file" multiple><br/>
   <input type="submit" value="提交">
 </form>
 
-<p>已上传图片的路径</p>
-<p th:text="${resUrl}">request field value</p>
+<p th:text="${resUrl}">-----上传您的图片-----</p>
 <hr>
 
 <form method="get" action="/common/download">

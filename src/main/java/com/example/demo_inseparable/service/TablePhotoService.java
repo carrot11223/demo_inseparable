@@ -27,8 +27,8 @@ public interface TablePhotoService extends IService<TablePhoto> {
     /**
      * 保存图片
      *
-     * @param file
+     * @param images
      * @param request
      */
-    String savePhoto(MultipartFile file, HttpServletRequest request) throws IOException;
+    String savePhoto(List<MultipartFile> images, HttpServletRequest request) throws IOException;
 }

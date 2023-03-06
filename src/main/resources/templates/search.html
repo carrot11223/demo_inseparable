@@ -11,6 +11,7 @@
   <input type="submit" value="提交关键字">
 </form>
 <br/>
+<hr>包含关键字的图片如下：<hr>
 <ul>
   <li th:each="path : ${images}">
     <img th:src="@{${path}}"/>
@@ -19,7 +20,12 @@
 
 <hr>
 <p>为啥啥也没有</p>
-<img th:src="@{..//imgs//6c85728a-51d2-4aeb-9daf-d3713b1281df.jpg}">
+<img th:src="@{/imgs/fa0a8572-ab6d-4d91-a5dc-48d306b69212.jpg}" />
+
+<img th:src="@{classpath:imgs/fa0a8572-ab6d-4d91-a5dc-48d306b69212.jpg}">
+
+<img th:src="@{src/main/resources/static/imgs/fa0a8572-ab6d-4d91-a5dc-48d306b69212.jpg}" />
+
 <html>
 
 </html>

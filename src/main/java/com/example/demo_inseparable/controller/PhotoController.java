@@ -42,7 +42,7 @@ public class PhotoController {
      * @return
      */
     @PostMapping("/upload")
-    public String upload(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws IOException {//此处的file是一个临时文件，请求消失之后就会不见，我们要把这个文件放到我们的服务器上面
+    public String upload(@RequestParam("file")List<MultipartFile> file, HttpServletRequest request) throws IOException {//此处的file是一个临时文件，请求消失之后就会不见，我们要把这个文件放到我们的服务器上面
       return tablePhotoService.savePhoto(file, request);
     }
 
